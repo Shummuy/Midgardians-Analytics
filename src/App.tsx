@@ -3,10 +3,10 @@ import {
   FileSpreadsheet, 
   Upload, 
   Tv, 
-  Youtube,
+  Youtube, 
   CheckCircle2, 
   ClipboardPaste,
-  Layers
+  HelpCircle
 } from 'lucide-react';
 import { CsvParseResult, StreamRow } from './types/twitch';
 import { YoutubeLiveRow, YoutubeParseResult } from './types/youtube';
@@ -16,6 +16,7 @@ import { CsvUploader } from './components/CsvUploader';
 import { HorizontalDashboard } from './components/HorizontalDashboard';
 import { YoutubeDashboard } from './components/YoutubeDashboard';
 import { YoutubeTextModal } from './components/YoutubeTextModal';
+import { HowToUseModal } from './components/HowToUseModal';
 
 export default function App() {
   const [activePlatform, setActivePlatform] = useState<'twitch' | 'youtube'>('twitch');
@@ -30,6 +31,11 @@ export default function App() {
   // YouTube State
   const [youtubeLives, setYoutubeLives] = useState<YoutubeLiveRow[]>([]);
   const [isYoutubeModalOpen, setIsYoutubeModalOpen] = useState<boolean>(false);
+
+  // "Como Usar" Modal State (Appears on open by default unless marked "Não aparecer novamente")
+  const [isHowToUseOpen, setIsHowToUseOpen] = useState<boolean>(() => {
+    return localStorage.getItem('stream_csv_hide_tutorial') !== 'true';
+  });
 
   // Notifications
   const [notification, setNotification] = useState<string | null>(null);
@@ -172,6 +178,13 @@ export default function App() {
     setTimeout(() => setNotification(null), 4000);
   };
 
+  const handleDontShowAgain = () => {
+    localStorage.setItem('stream_csv_hide_tutorial', 'true');
+    setIsHowToUseOpen(false);
+    setNotification('Você pode reabrir o "Como Usar" a qualquer momento no topo da tela.');
+    setTimeout(() => setNotification(null), 4000);
+  };
+
   return (
     <div className="min-h-screen bg-[#0E0E10] text-[#EFEFF1] flex flex-col font-sans selection:bg-[#00F59B] selection:text-black">
       {/* Top Navbar */}
@@ -204,7 +217,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Platform Tab Switcher */}
+          {/* Center Platform Tab Switcher */}
           <div className="flex items-center p-1 bg-[#0E0E10] border border-[#2D2D35] rounded-2xl shadow-inner">
             <button
               onClick={() => {
@@ -236,8 +249,18 @@ export default function App() {
             </button>
           </div>
 
-          {/* Header Action Button */}
-          <div className="flex items-center gap-2.5">
+          {/* Header Action Buttons */}
+          <div className="flex items-center gap-2">
+            {/* Como Usar Button in the top corner */}
+            <button
+              onClick={() => setIsHowToUseOpen(true)}
+              className="py-2 px-3 sm:px-3.5 rounded-xl font-bold text-xs flex items-center gap-1.5 bg-[#26262C] hover:bg-[#32323A] text-white border border-[#3D3D45] hover:border-[#00F59B]/50 transition-all shadow-md group"
+              title="Abrir guia de como usar"
+            >
+              <HelpCircle className="w-4 h-4 text-[#00F59B] group-hover:scale-110 transition-transform" />
+              <span className="hidden sm:inline">Como Usar</span>
+            </button>
+
             {activePlatform === 'twitch' ? (
               <button
                 onClick={() => setShowUploader(!showUploader)}
@@ -338,6 +361,13 @@ export default function App() {
         onDataParsed={handleYoutubeParsed}
       />
 
+      {/* Como Usar Tutorial Modal (Opens on load, can be suppressed or reopened) */}
+      <HowToUseModal
+        isOpen={isHowToUseOpen}
+        onClose={() => setIsHowToUseOpen(false)}
+        onDontShowAgain={handleDontShowAgain}
+      />
+
       {/* Footer */}
       <footer className="border-t border-[#26262C] bg-[#141416] py-6 px-4 text-center text-xs text-[#70707B]">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -349,8 +379,15 @@ export default function App() {
             </div>
             <span>Stream CSV Analytics • Suporte para Twitch e YouTube</span>
           </div>
-          <div>
-            Processamento de arquivos e textos .CSV estruturados.
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsHowToUseOpen(true)}
+              className="text-[#ADADB8] hover:text-[#00F59B] underline transition-colors"
+            >
+              Ver instruções (Como Usar)
+            </button>
+            <span>•</span>
+            <span>Processamento de arquivos e textos .CSV estruturados.</span>
           </div>
         </div>
       </footer>
