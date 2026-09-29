@@ -1,0 +1,6 @@
+{
+  "name": "Stream CSV Analytics (Twitch & YouTube) - Cabana do Sentinela",
+  "description": "Ferramenta para importar arquivos .CSV oficiais da Twitch e do YouTube Studio, gerando dashboard horizontal com Views Totais, Média ao Vivo, Pico ao Vivo e Chat Único.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
