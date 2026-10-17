@@ -16,14 +16,14 @@ import { SAMPLE_TWITCH_CSV, SAMPLE_YOUTUBE_CSV, parseStreamCsv } from '../utils/
 import { CsvParseResult, StreamRow, StreamingPlatform } from '../types/twitch';
 
 interface CsvUploaderProps {
-  platform: StreamingPlatform;
+  platform?: StreamingPlatform;
   onDataParsed: (result: CsvParseResult) => void;
   currentCount: number;
   currentFileName?: string;
 }
 
 export const CsvUploader: React.FC<CsvUploaderProps> = ({
-  platform,
+  platform = 'twitch',
   onDataParsed,
   currentCount,
   currentFileName,

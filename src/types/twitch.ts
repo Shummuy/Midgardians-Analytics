@@ -2,7 +2,7 @@ export type StreamingPlatform = 'twitch' | 'youtube';
 
 export interface StreamRow {
   id: string;
-  platform: StreamingPlatform;
+  platform?: StreamingPlatform;
   rawDate: string;
   formattedDate: string;
   formattedTime: string;
@@ -27,7 +27,7 @@ export interface StreamRow {
 }
 
 export interface CsvParseResult {
-  platform: StreamingPlatform;
+  platform?: StreamingPlatform;
   streams: StreamRow[];
   totalStreams: number;
   fileName?: string;

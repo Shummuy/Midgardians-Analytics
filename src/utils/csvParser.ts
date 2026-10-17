@@ -1,4 +1,7 @@
-import { CsvParseResult, StreamRow } from '../types/twitch';
+import { CsvParseResult, StreamRow, StreamingPlatform } from '../types/twitch';
+import { SAMPLE_YOUTUBE_TEXT, parseYoutubeCsvText } from './youtubeParser';
+
+export const SAMPLE_YOUTUBE_CSV = SAMPLE_YOUTUBE_TEXT;
 
 /**
  * Standard authentic CSV data from Twitch Creator Dashboard
@@ -432,4 +435,44 @@ export function parseTwitchCsv(
     rawHeaders,
     detectedViewsColumn: detectedViewsName,
   };
+}
+
+/**
+ * Universal parser wrapper supporting both Twitch and YouTube CSV input
+ */
+export function parseStreamCsv(
+  csvText: string,
+  platform: StreamingPlatform = 'twitch',
+  fileName?: string
+): CsvParseResult {
+  if (platform === 'youtube') {
+    const ytResult = parseYoutubeCsvText(csvText);
+    const convertedStreams: StreamRow[] = ytResult.lives.map((l) => ({
+      id: l.id,
+      platform: 'youtube',
+      rawDate: l.rawDate,
+      formattedDate: l.formattedDate,
+      formattedTime: '',
+      timestamp: l.timestamp,
+      title: l.title,
+      game: 'YouTube Live',
+      duration: '-',
+      durationMinutes: 0,
+      views: l.totalViews,
+      avgViewers: l.avgViewers || 0,
+      peakViewers: l.peakViewers || 0,
+      uniqueChatters: l.totalChat || 0,
+      chatMessages: l.chatMessages || 0,
+      rawColumns: l.rawColumns,
+    }));
+    return {
+      platform: 'youtube',
+      streams: convertedStreams,
+      totalStreams: convertedStreams.length,
+      fileName,
+      headersDetected: ytResult.headersDetected,
+      rawHeaders: ytResult.headersDetected,
+    };
+  }
+  return parseTwitchCsv(csvText, fileName);
 }
